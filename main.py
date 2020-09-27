@@ -5,12 +5,12 @@ from typing import List
 import click
 
 
-LAPTOP_DISPLAY = "LVDS-1"
+# LAPTOP_DISPLAY = "LVDS-1"
+LAPTOP_DISPLAY = "eDP-1"
 
 
 def connected_displays() -> List[str]:
-    """Returns a list of the names of all connected displays
-    """
+    """Returns a list of the names of all connected displays"""
     p = run(["xrandr"], stdout=PIPE, universal_newlines=True)
     stdout = p.stdout.splitlines()
 
@@ -30,12 +30,15 @@ def main():
     "--left/-l", is_flag=True, help="Add new display to the left of the current display"
 )
 @click.option(
-    "--dont-move-workspaces/-k",
+    "--dont-move-workspaces",
+    "-k",
     is_flag=True,
     help="Keep all workspaces on their current displays",
 )
 @click.option(
-    "--high-res", is_flag=True, help="New display is 4k",
+    "--high-res",
+    is_flag=True,
+    help="New display is 4k",
 )
 def add(left, dont_move_workspaces, high_res):
     """Add a new display to the right of laptop screen,
@@ -87,12 +90,16 @@ def add(left, dont_move_workspaces, high_res):
 
 @main.command()
 def disconnect() -> None:
-    """Disable all external displays and only use laptop screen
-    """
+    """Disable all external displays and only use laptop screen"""
     connected = [x for x in connected_displays() if x != LAPTOP_DISPLAY]
     for display in connected:
         run(
-            ["xrandr", "--output", display, "--off",]
+            [
+                "xrandr",
+                "--output",
+                display,
+                "--off",
+            ]
         )
 
 
@@ -123,14 +130,19 @@ def change_brightness(new_brightness_fn) -> None:
         new_brightness = new_brightness_fn(brightness)
 
         run(
-            ["xrandr", "--output", display, "--brightness", str(new_brightness),]
+            [
+                "xrandr",
+                "--output",
+                display,
+                "--brightness",
+                str(new_brightness),
+            ]
         )
 
 
 @b.command()
 def down():
-    """Lower brightness
-    """
+    """Lower brightness"""
 
     def f(brightness):
         new_brightness = brightness - 0.1
@@ -144,8 +156,7 @@ def down():
 
 @b.command()
 def up():
-    """Increase brightness
-    """
+    """Increase brightness"""
 
     def f(brightness):
         new_brightness = brightness + 0.1
@@ -159,8 +170,7 @@ def up():
 
 @b.command()
 def max():
-    """Increase brightness to the maximum level
-    """
+    """Increase brightness to the maximum level"""
 
     change_brightness(lambda _: 1.0)
 
